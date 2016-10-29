@@ -15,14 +15,14 @@ then
 fi
 
 # Set global IP listening
-sed -i "s/^bind 127.0.0.1/bind 0.0.0.0/" /etc/redis.conf
+sed -i "s/^bind.*127.0.0.1/bind 0.0.0.0/" /etc/redis.conf
 
 # Install Redis
 yum -y install redis
 systemctl enable redis
 systemctl start redis
 
-if ! redis-cli ping >/dev/null 2>&1
+if ! redis-cli -h 192.168.12.1 ping >/dev/null 2>&1
 then
 	echo "Redis is not working as expected" 1>&2
 	exit 1

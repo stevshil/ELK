@@ -1,10 +1,5 @@
 #Vagrant::Config.run do | config |
 Vagrant.configure(2) do | config |
-  config.vm.define :default_fail do |failconfig|
-    # This is here to fail the config if all machines are started by mistake
-    failconfig.vm.provision :shell, :path => 'FAIL: This box is invalid, use vagrant up BOXTYPE'
-  end
-
   # Redis Server
   config.vm.define :redis do | redis |
     config.vm.provider "virtualbox" do |vb|
@@ -36,6 +31,17 @@ Vagrant.configure(2) do | config |
     es.vm.host_name = "es.training.local"
     es.vm.network "private_network", ip: "192.168.12.3", virtualbox__intnet: "intnet"
     es.vm.provision "shell", :path => "bin/es.sh"
+  end
+
+  # Elasticsearch member 2 of cluster
+  config.vm.define :es2 do | es2 |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "ES2"
+    end
+    es2.vm.host_name = "es2.training.local"
+    es2.vm.network "private_network", ip: "192.168.12.6", virtualbox__intnet: "intnet"
+    es2.vm.provision "shell", :path => "bin/es.sh"
   end
 
   # Logstash indexer

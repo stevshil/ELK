@@ -67,7 +67,7 @@ input {
   }
 }
 output {
-  elasticsearch { hosts => []"192.168.12.3:9200"] }
+  elasticsearch { hosts => ["192.168.12.3:9200"] }
 }
 _END_
 fi

@@ -31,7 +31,7 @@ fi
 yum -y install kibana
 
 # Set Elasticsearch server location
-if ! grep '^# elasticsearch.url: "http://localhost:9200"' /opt/kibana/config/kibana.yml | grep -v grep >/dev/null 2>&1
+if grep '^# elasticsearch.url: "http://localhost:9200"' /opt/kibana/config/kibana.yml | grep -v grep >/dev/null 2>&1
 then
   sed -i 's,# elasticsearch.url: "http://localhost:9200",elasticsearch.url: "http://192.168.12.3:9200",' /opt/kibana/config/kibana.yml
 fi

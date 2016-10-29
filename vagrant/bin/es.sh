@@ -1,4 +1,6 @@
 #!/bin/bash
+# This configuration is based on a cluster
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04
 
 # Disable selinux
 sed -i 's/^SELINUX=permissive/SELINUX=disabled/' /etc/sysconfig/selinux
@@ -37,7 +39,21 @@ fi
 yum -y install elasticsearch
 
 # Configure listening addresses
-sed -i "s/# network.host: 192.168.0.1/network.host: 192.168.12.3/" /etc/elasticsearch/elasticsearch.yml
+if ip a | grep '192\.168\.12\.3' >/dev/null 2>&1
+then
+	sed -i "s/# network.host: 192.168.0.1/network.host: 192.168.12.3/" /etc/elasticsearch/elasticsearch.yml
+fi
+
+if ip a | grep '192\.168\.12\.6' >/dev/null 2>&1
+then
+	sed -i "s/# network.host: 192.168.0.1/network.host: 192.168.12.6/" /etc/elasticsearch/elasticsearch.yml
+fi
+
+# Set the nodes in the cluster
+sed -i 's/.*discovery.zen.ping.unicast.hosts.*/discovery.zen.ping.unicast.hosts: ["192.168.12.3","192.168.12.6"]/' /etc/elasticsearch/elasticsearch.yml
+sed -i 's/.*node.name:.*/node.name: ${HOSTNAME}' /etc/elasticsearch/elasticsearch.yml
+sed -i -e 's/.*bootstrap.mlockall.*/bootstrap.mlockall: true/' -e 's/.*discovery.zen.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: 2/' /etc/elasticsearch/elasticsearch.yml
+sed -i  -e 's/.*ES_HEAP_SIZE.*/ES_HEAP_SIZE=512m/' -e 's/.*MAX_LOCKED_MEMORY.*/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 
 # Enable logstash and start it
 systemctl enable elasticsearch
