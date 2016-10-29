@@ -1,0 +1,68 @@
+#Vagrant::Config.run do | config |
+Vagrant.configure(2) do | config |
+  config.vm.define :default_fail do |failconfig|
+    # This is here to fail the config if all machines are started by mistake
+    failconfig.vm.provision :shell, :path => 'FAIL: This box is invalid, use vagrant up BOXTYPE'
+  end
+
+  # Redis Server
+  config.vm.define :redis do | redis |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "Redis"
+    end
+    redis.vm.host_name = "redis.training.local"
+    redis.vm.network "private_network", ip: "192.168.12.1", virtualbox__intnet: "intnet"
+    redis.vm.provision "shell", :path => "bin/redis.sh"
+  end
+
+  # Logstash forwarders
+  config.vm.define :lfw do | lfw |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "LFW"
+    end
+    lfw.vm.host_name = "lfw.training.local"
+    lfw.vm.network "private_network", ip: "192.168.12.2", virtualbox__intnet: "intnet"
+    lfw.vm.provision "shell", :path => "bin/lfw.sh"
+  end
+
+  # Elasticsearch
+  config.vm.define :es do | es |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "ES"
+    end
+    es.vm.host_name = "es.training.local"
+    es.vm.network "private_network", ip: "192.168.12.3", virtualbox__intnet: "intnet"
+    es.vm.provision "shell", :path => "bin/es.sh"
+  end
+
+  # Logstash indexer
+  config.vm.define :logind do | logind |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "Logstash Indexer"
+    end
+    logind.vm.host_name = "logind.training.local"
+    logind.vm.network "private_network", ip: "192.168.12.4", virtualbox__intnet: "intnet"
+    logind.vm.provision "shell", :path => "bin/logind.sh"
+  end
+
+  # Kibana
+  config.vm.define :kibana do | kibana |
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.name = "Kibana"
+    end
+    kibana.vm.host_name = "kibana.training.local"
+    kibana.vm.network "private_network", ip: "192.168.12.5", virtualbox__intnet: "intnet"
+    kibana.vm.network "forwarded_port", guest: 5601, host: 5601, protocol: 'tcp'
+    kibana.vm.provision "shell", :path => "bin/kibana.sh"
+  end
+
+  # Defaults
+  # https://atlas.hashicorp.com/boxes/search
+  config.vm.box = "bento/centos-7.1"
+  config.ssh.username = "vagrant"
+end
